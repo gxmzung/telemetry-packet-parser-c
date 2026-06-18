@@ -32,6 +32,7 @@ void print_packet(const TelemetryPacket *packet) {
     printf("  Velocity : %.2f m/s\n", packet->velocity);
     printf("  Battery  : %.2f %%\n", packet->battery);
     printf("  Signal   : %d dBm\n", packet->signal_strength);
+    printf("  Risk     : %d / 100\n", calculate_risk_score(packet));
 }
 
 int is_packet_warning(const TelemetryPacket *packet) {
@@ -39,23 +40,45 @@ int is_packet_warning(const TelemetryPacket *packet) {
         return 0;
     }
 
+    return calculate_risk_score(packet) >= 40;
+}
+
+int calculate_risk_score(const TelemetryPacket *packet) {
+    int score = 0;
+
+    if (packet == NULL) {
+        return 0;
+    }
+
     if (packet->battery < 25.0) {
-        return 1;
+        score += 35;
+    } else if (packet->battery < 40.0) {
+        score += 15;
     }
 
     if (packet->signal_strength < -85) {
-        return 1;
+        score += 30;
+    } else if (packet->signal_strength < -75) {
+        score += 10;
     }
 
     if (packet->altitude > 1000.0) {
-        return 1;
+        score += 25;
+    } else if (packet->altitude > 800.0) {
+        score += 10;
     }
 
     if (packet->velocity > 80.0) {
-        return 1;
+        score += 25;
+    } else if (packet->velocity > 60.0) {
+        score += 10;
     }
 
-    return 0;
+    if (score > 100) {
+        score = 100;
+    }
+
+    return score;
 }
 
 void print_diagnostic(const TelemetryPacket *packet) {
@@ -89,4 +112,103 @@ void print_diagnostic(const TelemetryPacket *packet) {
     }
 
     printf("\n");
+}
+
+void init_summary(TelemetrySummary *summary) {
+    if (summary == NULL) {
+        return;
+    }
+
+    summary->total_count = 0;
+    summary->warning_count = 0;
+    summary->average_altitude = 0.0;
+    summary->average_velocity = 0.0;
+    summary->average_battery = 0.0;
+    summary->max_altitude = 0.0;
+    summary->max_velocity = 0.0;
+    summary->min_battery = 100.0;
+}
+
+void update_summary(TelemetrySummary *summary, const TelemetryPacket *packet) {
+    if (summary == NULL || packet == NULL) {
+        return;
+    }
+
+    summary->total_count++;
+
+    if (is_packet_warning(packet)) {
+        summary->warning_count++;
+    }
+
+    summary->average_altitude += packet->altitude;
+    summary->average_velocity += packet->velocity;
+    summary->average_battery += packet->battery;
+
+    if (packet->altitude > summary->max_altitude) {
+        summary->max_altitude = packet->altitude;
+    }
+
+    if (packet->velocity > summary->max_velocity) {
+        summary->max_velocity = packet->velocity;
+    }
+
+    if (packet->battery < summary->min_battery) {
+        summary->min_battery = packet->battery;
+    }
+}
+
+void finalize_summary(TelemetrySummary *summary) {
+    if (summary == NULL || summary->total_count == 0) {
+        return;
+    }
+
+    summary->average_altitude /= summary->total_count;
+    summary->average_velocity /= summary->total_count;
+    summary->average_battery /= summary->total_count;
+}
+
+void print_summary(const TelemetrySummary *summary) {
+    if (summary == NULL) {
+        return;
+    }
+
+    printf("\n========================================\n");
+    printf(" Mission Summary\n");
+    printf("========================================\n");
+    printf("  Total packets      : %d\n", summary->total_count);
+    printf("  Warning packets    : %d\n", summary->warning_count);
+    printf("  Normal packets     : %d\n", summary->total_count - summary->warning_count);
+    printf("  Average altitude   : %.2f m\n", summary->average_altitude);
+    printf("  Average velocity   : %.2f m/s\n", summary->average_velocity);
+    printf("  Average battery    : %.2f %%\n", summary->average_battery);
+    printf("  Max altitude       : %.2f m\n", summary->max_altitude);
+    printf("  Max velocity       : %.2f m/s\n", summary->max_velocity);
+    printf("  Min battery        : %.2f %%\n", summary->min_battery);
+}
+
+void write_diagnostic_report(const char *path, const TelemetrySummary *summary) {
+    if (path == NULL || summary == NULL) {
+        return;
+    }
+
+    FILE *file = fopen(path, "w");
+
+    if (file == NULL) {
+        fprintf(stderr, "Warning: failed to write diagnostic report: %s\n", path);
+        return;
+    }
+
+    fprintf(file, "Telemetry Packet Parser C - Diagnostic Report\n");
+    fprintf(file, "=============================================\n\n");
+    fprintf(file, "Total packets      : %d\n", summary->total_count);
+    fprintf(file, "Warning packets    : %d\n", summary->warning_count);
+    fprintf(file, "Normal packets     : %d\n", summary->total_count - summary->warning_count);
+    fprintf(file, "Average altitude   : %.2f m\n", summary->average_altitude);
+    fprintf(file, "Average velocity   : %.2f m/s\n", summary->average_velocity);
+    fprintf(file, "Average battery    : %.2f %%\n", summary->average_battery);
+    fprintf(file, "Max altitude       : %.2f m\n", summary->max_altitude);
+    fprintf(file, "Max velocity       : %.2f m/s\n", summary->max_velocity);
+    fprintf(file, "Min battery        : %.2f %%\n", summary->min_battery);
+
+    fclose(file);
 }

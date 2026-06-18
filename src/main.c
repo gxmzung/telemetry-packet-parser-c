@@ -4,6 +4,7 @@
 
 int main(int argc, char *argv[]) {
     const char *file_path = "data/sample_packets.csv";
+    const char *report_path = "logs/diagnostic_report.txt";
 
     if (argc >= 2) {
         file_path = argv[1];
@@ -17,12 +18,14 @@ int main(int argc, char *argv[]) {
     }
 
     char line[MAX_LINE_LENGTH];
-    int total_count = 0;
-    int warning_count = 0;
+    TelemetrySummary summary;
+
+    init_summary(&summary);
 
     printf("========================================\n");
     printf(" Telemetry Packet Parser - C\n");
-    printf("========================================\n\n");
+    printf("========================================\n");
+    printf(" Input file: %s\n\n", file_path);
 
     while (fgets(line, sizeof(line), file) != NULL) {
         TelemetryPacket packet;
@@ -42,19 +45,16 @@ int main(int argc, char *argv[]) {
         print_diagnostic(&packet);
         printf("----------------------------------------\n");
 
-        total_count++;
-
-        if (is_packet_warning(&packet)) {
-            warning_count++;
-        }
+        update_summary(&summary, &packet);
     }
 
     fclose(file);
 
-    printf("\nSummary\n");
-    printf("  Total packets   : %d\n", total_count);
-    printf("  Warning packets : %d\n", warning_count);
-    printf("  Normal packets  : %d\n", total_count - warning_count);
+    finalize_summary(&summary);
+    print_summary(&summary);
+    write_diagnostic_report(report_path, &summary);
+
+    printf("\nReport saved to: %s\n", report_path);
 
     return 0;
 }

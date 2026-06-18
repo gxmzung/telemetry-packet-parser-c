@@ -1,0 +1,5 @@
+telemetry_parser
+*.o
+*.out
+.DS_Store
+logs/*.txt
