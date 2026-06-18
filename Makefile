@@ -46,8 +46,11 @@ run-sender: udp-sender
 run-sender-anomaly: udp-sender-anomaly
 	./$(UDP_SENDER_ANOMALY)
 
+test: clean run run-bin
+
 clean:
 	rm -f $(TARGET) $(BIN_WRITER) $(UDP_RECEIVER) $(UDP_SENDER) $(UDP_SENDER_ANOMALY)
 	rm -f data/sample_packets.bin
 	rm -f logs/*.txt
 	rm -f logs/*.csv
+	rm -f logs/*.json
