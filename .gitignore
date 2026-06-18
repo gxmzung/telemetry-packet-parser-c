@@ -1,4 +1,3 @@
-# Build outputs
 telemetry_parser
 binary_writer
 udp_receiver
@@ -6,12 +5,8 @@ udp_sender
 udp_sender_anomaly
 *.o
 *.out
-
-# Generated data
 data/*.bin
 logs/*.txt
 logs/*.csv
 logs/*.json
-
-# macOS
 .DS_Store
