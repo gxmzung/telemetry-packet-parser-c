@@ -63,6 +63,27 @@ int read_binary_packet(FILE *file, TelemetryPacket *packet) {
     return 1;
 }
 
+
+const char *get_risk_level(int risk_score) {
+    if (risk_score >= 80) {
+        return "CRITICAL";
+    }
+
+    if (risk_score >= 60) {
+        return "HIGH";
+    }
+
+    if (risk_score >= 40) {
+        return "MEDIUM";
+    }
+
+    if (risk_score >= 1) {
+        return "LOW";
+    }
+
+    return "NORMAL";
+}
+
 void print_packet(const TelemetryPacket *packet) {
     if (packet == NULL) {
         return;
@@ -74,7 +95,9 @@ void print_packet(const TelemetryPacket *packet) {
     printf("  Velocity : %.2f m/s\n", packet->velocity);
     printf("  Battery  : %.2f %%\n", packet->battery);
     printf("  Signal   : %d dBm\n", packet->signal_strength);
-    printf("  Risk     : %d / 100\n", calculate_risk_score(packet));
+    int risk_score = calculate_risk_score(packet);
+    printf("  Risk     : %d / 100\n", risk_score);
+    printf("  Level    : %s\n", get_risk_level(risk_score));
 }
 
 int is_packet_warning(const TelemetryPacket *packet) {
@@ -267,9 +290,11 @@ void append_warning_event(const char *path, const TelemetryPacket *packet) {
         return;
     }
 
+    int risk_score = calculate_risk_score(packet);
+
     fprintf(
         file,
-        "%d,%.6f,%.6f,%.2f,%.2f,%.2f,%d,%d\n",
+        "%d,%.6f,%.6f,%.2f,%.2f,%.2f,%d,%d,%s\n",
         packet->packet_id,
         packet->latitude,
         packet->longitude,
@@ -277,7 +302,8 @@ void append_warning_event(const char *path, const TelemetryPacket *packet) {
         packet->velocity,
         packet->battery,
         packet->signal_strength,
-        calculate_risk_score(packet)
+        risk_score,
+        get_risk_level(risk_score)
     );
 
     fclose(file);

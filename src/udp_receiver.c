@@ -28,7 +28,7 @@ static void init_warning_log(void) {
         return;
     }
 
-    fprintf(file, "packet_id,latitude,longitude,altitude,velocity,battery,signal_strength,risk_score\n");
+    fprintf(file, "packet_id,latitude,longitude,altitude,velocity,battery,signal_strength,risk_score,risk_level\n");
     fclose(file);
 }
 

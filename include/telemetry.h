@@ -43,6 +43,7 @@ int parse_telemetry_line(const char *line, TelemetryPacket *packet);
 void print_packet(const TelemetryPacket *packet);
 int is_packet_warning(const TelemetryPacket *packet);
 int calculate_risk_score(const TelemetryPacket *packet);
+const char *get_risk_level(int risk_score);
 void print_diagnostic(const TelemetryPacket *packet);
 
 void init_summary(TelemetrySummary *summary);
