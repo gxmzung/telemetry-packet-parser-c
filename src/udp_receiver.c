@@ -10,10 +10,12 @@
 #define UDP_PORT 9000
 #define BUFFER_SIZE 512
 #define WARNING_LOG_PATH "logs/warning_events.csv"
+#define SEQUENCE_LOG_PATH "logs/sequence_anomalies.csv"
 #define SESSION_REPORT_PATH "logs/udp_session_report.txt"
 
 static volatile sig_atomic_t running = 1;
 static TelemetrySummary session_summary;
+static int last_packet_id = 0;
 
 static void handle_sigint(int signal_number) {
     (void)signal_number;
@@ -32,13 +34,66 @@ static void init_warning_log(void) {
     fclose(file);
 }
 
+static void init_sequence_log(void) {
+    FILE *file = fopen(SEQUENCE_LOG_PATH, "w");
+
+    if (file == NULL) {
+        fprintf(stderr, "Warning: failed to initialize sequence log: %s\n", SEQUENCE_LOG_PATH);
+        return;
+    }
+
+    fprintf(file, "expected_packet_id,actual_packet_id,anomaly_type\n");
+    fclose(file);
+}
+
+static void append_sequence_anomaly(int expected_id, int actual_id, const char *anomaly_type) {
+    FILE *file = fopen(SEQUENCE_LOG_PATH, "a");
+
+    if (file == NULL) {
+        fprintf(stderr, "Warning: failed to write sequence anomaly log: %s\n", SEQUENCE_LOG_PATH);
+        return;
+    }
+
+    fprintf(file, "%d,%d,%s\n", expected_id, actual_id, anomaly_type);
+    fclose(file);
+}
+
+static void check_packet_sequence(const TelemetryPacket *packet) {
+    if (packet == NULL) {
+        return;
+    }
+
+    if (last_packet_id == 0) {
+        last_packet_id = packet->packet_id;
+        return;
+    }
+
+    int expected_id = last_packet_id + 1;
+
+    if (packet->packet_id == expected_id) {
+        last_packet_id = packet->packet_id;
+        return;
+    }
+
+    if (packet->packet_id > expected_id) {
+        printf("  Sequence : ANOMALY - MISSING_PACKET expected #%d but got #%d\n", expected_id, packet->packet_id);
+        append_sequence_anomaly(expected_id, packet->packet_id, "MISSING_PACKET");
+    } else {
+        printf("  Sequence : ANOMALY - OUT_OF_ORDER expected #%d but got #%d\n", expected_id, packet->packet_id);
+        append_sequence_anomaly(expected_id, packet->packet_id, "OUT_OF_ORDER");
+    }
+
+    last_packet_id = packet->packet_id;
+}
+
 static void write_session_report(void) {
     finalize_summary(&session_summary);
     print_summary(&session_summary);
     write_diagnostic_report(SESSION_REPORT_PATH, &session_summary);
 
-    printf("\nUDP session report saved to: %s\n", SESSION_REPORT_PATH);
-    printf("Warning event log saved to : %s\n", WARNING_LOG_PATH);
+    printf("\nUDP session report saved to : %s\n", SESSION_REPORT_PATH);
+    printf("Warning event log saved to  : %s\n", WARNING_LOG_PATH);
+    printf("Sequence anomaly log saved to: %s\n", SEQUENCE_LOG_PATH);
 }
 
 int main(void) {
@@ -72,12 +127,14 @@ int main(void) {
     }
 
     init_warning_log();
+    init_sequence_log();
 
     printf("========================================\n");
     printf(" UDP Telemetry Receiver - C\n");
     printf("========================================\n");
     printf(" Listening on port %d...\n", UDP_PORT);
-    printf(" Warning log: %s\n", WARNING_LOG_PATH);
+    printf(" Warning log : %s\n", WARNING_LOG_PATH);
+    printf(" Sequence log: %s\n", SEQUENCE_LOG_PATH);
     printf(" Press Ctrl+C to stop and print summary.\n\n");
 
     while (running) {
@@ -110,6 +167,8 @@ int main(void) {
             printf("----------------------------------------\n");
             continue;
         }
+
+        check_packet_sequence(&packet);
 
         print_packet(&packet);
         print_diagnostic(&packet);

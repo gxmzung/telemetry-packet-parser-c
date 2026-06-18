@@ -3,6 +3,7 @@ telemetry_parser
 binary_writer
 udp_receiver
 udp_sender
+udp_sender_anomaly
 *.o
 *.out
 

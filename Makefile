@@ -5,11 +5,13 @@ TARGET = telemetry_parser
 BIN_WRITER = binary_writer
 UDP_RECEIVER = udp_receiver
 UDP_SENDER = udp_sender
+UDP_SENDER_ANOMALY = udp_sender_anomaly
 
 SRC = src/main.c src/telemetry.c
 WRITER_SRC = src/binary_writer.c src/telemetry.c
 RECEIVER_SRC = src/udp_receiver.c src/telemetry.c
 SENDER_SRC = src/udp_sender.c
+SENDER_ANOMALY_SRC = src/udp_sender_anomaly.c
 
 all:
 	$(CC) $(CFLAGS) $(SRC) -o $(TARGET)
@@ -22,6 +24,9 @@ udp-receiver:
 
 udp-sender:
 	$(CC) $(CFLAGS) $(SENDER_SRC) -o $(UDP_SENDER)
+
+udp-sender-anomaly:
+	$(CC) $(CFLAGS) $(SENDER_ANOMALY_SRC) -o $(UDP_SENDER_ANOMALY)
 
 generate-bin: writer
 	./$(BIN_WRITER)
@@ -38,7 +43,11 @@ run-receiver: udp-receiver
 run-sender: udp-sender
 	./$(UDP_SENDER)
 
+run-sender-anomaly: udp-sender-anomaly
+	./$(UDP_SENDER_ANOMALY)
+
 clean:
-	rm -f $(TARGET) $(BIN_WRITER) $(UDP_RECEIVER) $(UDP_SENDER)
+	rm -f $(TARGET) $(BIN_WRITER) $(UDP_RECEIVER) $(UDP_SENDER) $(UDP_SENDER_ANOMALY)
 	rm -f data/sample_packets.bin
 	rm -f logs/*.txt
+	rm -f logs/*.csv

@@ -88,3 +88,47 @@ Socket communication
 Log file export
 Dashboard API integration
 ROS2/PX4 telemetry bridge
+
+## v0.8 Update
+
+이번 버전에서는 UDP 수신 중 패킷 번호의 순서 이상을 감지하는 기능을 추가했습니다.
+
+### Added
+
+- Packet sequence tracking
+- Missing packet detection
+- Out-of-order packet detection
+- Sequence anomaly CSV log
+- Anomaly sender for testing
+
+### Run Normal UDP Test
+
+터미널 1에서 receiver를 실행합니다.
+
+make run-receiver
+
+터미널 2에서 정상 sender를 실행합니다.
+
+make run-sender
+
+### Run Anomaly UDP Test
+
+터미널 1에서 receiver를 실행합니다.
+
+make run-receiver
+
+터미널 2에서 이상 상황 sender를 실행합니다.
+
+make run-sender-anomaly
+
+### Sequence Anomaly Log
+
+패킷 번호가 순서대로 들어오지 않으면 아래 파일에 기록됩니다.
+
+logs/sequence_anomalies.csv
+
+### Why sequence anomaly detection matters
+
+실시간 관제 시스템에서는 데이터 값 자체뿐만 아니라, 데이터가 올바른 순서로 도착했는지도 중요합니다.
+
+패킷 손실, 지연, 순서 뒤바뀜은 드론·센서·위성 데이터 처리에서 운영자가 확인해야 하는 중요한 이상 징후입니다.
