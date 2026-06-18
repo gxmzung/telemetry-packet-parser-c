@@ -1,6 +1,12 @@
+# Build outputs
 telemetry_parser
 binary_writer
 *.o
 *.out
-.DS_Store
+
+# Generated data
+data/*.bin
 logs/*.txt
+
+# macOS
+.DS_Store

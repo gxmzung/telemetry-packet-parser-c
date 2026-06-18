@@ -24,3 +24,5 @@ run-bin: all generate-bin
 
 clean:
 	rm -f $(TARGET) $(BIN_WRITER)
+	rm -f data/sample_packets.bin
+	rm -f logs/*.txt

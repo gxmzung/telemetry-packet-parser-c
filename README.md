@@ -8,8 +8,6 @@ C 기반 드론/위성 텔레메트리 패킷 파서입니다.
 
 단순 C 문법 연습이 아니라, 실제 관제 시스템에서 중요한 데이터 흐름을 이해하기 위해 만들었습니다.
 
-핵심 흐름은 다음과 같습니다.
-
 ```txt
 Telemetry Data
 → Packet Parsing
@@ -18,82 +16,29 @@ Telemetry Data
 → Operator-readable Output
 Features
 CSV 기반 텔레메트리 패킷 파싱
-위도, 경도, 고도, 속도, 배터리, 신호 세기 처리
+바이너리 텔레메트리 패킷 파싱
+Magic number 기반 패킷 검증
+위험도 점수 계산
 배터리 부족 감지
 약한 신호 감지
 고고도/고속 상태 감지
-CLI 기반 진단 결과 출력
+미션 요약 통계 출력
+진단 리포트 저장
 Tech Stack
 C
 GCC
 Makefile
 CLI
-Telemetry Data Parsing
+Binary file I/O
+Telemetry data parsing
 Build
 make
-Run
+Run CSV Parser
 make run
-
-또는 직접 파일 지정:
-
-./telemetry_parser data/sample_packets.csv
-Sample Output
-Packet #4
-  Position : 36.353450, 127.387800
-  Altitude : 450.20 m
-  Velocity : 35.10 m/s
-  Battery  : 24.50 %
-  Signal   : -79 dBm
-  Diagnostic: WARNING - LOW_BATTERY
-Why this project matters
-
-위성데이터, 드론 데이터, 센서 데이터는 단순히 수집하는 것에서 끝나지 않습니다.
-
-중요한 것은 데이터를 사람이 판단할 수 있는 구조로 바꾸는 것입니다.
-
-이 프로젝트는 제가 관심 있는 다음 방향을 보여줍니다.
-
-데이터 흐름
-관제 시스템
-텔레메트리
-상태 진단
-운영자 중심 출력
-C 기반 시스템 프로그래밍
-Current Limitations
-
-현재는 학습형 CLI 프로젝트입니다.
-
-실제 드론 또는 위성 데이터와 직접 연동되어 있지는 않으며, 실무 수준의 안정성이나 실시간 스트리밍 구조는 포함되어 있지 않습니다.
-
-Future Work
-Binary packet parsing
-Real-time telemetry stream
-Socket communication
-Log file export
-Dashboard API integration
-ROS2/PX4 telemetry bridge
-
-## v0.3 Update
-
-이번 버전에서는 CSV뿐만 아니라 바이너리 텔레메트리 패킷 파일을 읽는 기능을 추가했습니다.
-
-### Added
-
-- Binary telemetry packet structure
-- Binary sample packet generator
-- Magic number validation
-- CSV/Binary mode auto detection
-- Binary packet parsing
-
-### Generate Binary Sample
-
-```bash
-make generate-bin
 Run Binary Parser
 make run-bin
-
-또는 직접 실행:
-
+Direct Run
+./telemetry_parser data/sample_packets.csv
 ./telemetry_parser data/sample_packets.bin
 Binary Packet Format
 typedef struct {
@@ -111,8 +56,35 @@ Magic Number
 
 매직 넘버는 바이너리 패킷이 올바른 텔레메트리 패킷인지 확인하기 위한 값입니다.
 
-Why Binary Parsing Matters
+Report Output
 
-CSV는 사람이 읽기 쉽지만, 실제 센서·드론·위성 시스템에서는 바이너리 패킷 형태로 데이터가 전달되는 경우가 많습니다.
+실행 후 진단 리포트가 생성됩니다.
 
-이 업데이트는 텍스트 기반 데이터 처리에서 한 단계 더 나아가, 저수준 데이터 구조와 패킷 검증 흐름을 C 언어로 직접 구현해보기 위한 단계입니다.
+logs/diagnostic_report.txt
+Why this project matters
+
+위성데이터, 드론 데이터, 센서 데이터는 단순히 수집하는 것에서 끝나지 않습니다.
+
+중요한 것은 데이터를 사람이 판단할 수 있는 구조로 바꾸는 것입니다.
+
+이 프로젝트는 다음 방향을 보여줍니다.
+
+데이터 흐름
+관제 시스템
+텔레메트리
+상태 진단
+운영자 중심 출력
+C 기반 시스템 프로그래밍
+Current Limitations
+
+현재는 학습형 CLI 프로젝트입니다.
+
+실제 드론 또는 위성 데이터와 직접 연동되어 있지는 않으며, 실무 수준의 안정성이나 실시간 스트리밍 구조는 포함되어 있지 않습니다.
+
+Future Work
+UDP telemetry receiver
+Real-time telemetry stream
+Socket communication
+Log file export
+Dashboard API integration
+ROS2/PX4 telemetry bridge
