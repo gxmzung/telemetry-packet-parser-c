@@ -9,6 +9,7 @@ udp_sender
 # Generated data
 data/*.bin
 logs/*.txt
+logs/*.csv
 
 # macOS
 .DS_Store
