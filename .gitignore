@@ -1,6 +1,8 @@
 # Build outputs
 telemetry_parser
 binary_writer
+udp_receiver
+udp_sender
 *.o
 *.out
 

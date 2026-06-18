@@ -254,3 +254,31 @@ void write_diagnostic_report(const char *path, const TelemetrySummary *summary) 
 
     fclose(file);
 }
+
+void append_warning_event(const char *path, const TelemetryPacket *packet) {
+    if (path == NULL || packet == NULL) {
+        return;
+    }
+
+    FILE *file = fopen(path, "a");
+
+    if (file == NULL) {
+        fprintf(stderr, "Warning: failed to write warning event log: %s\n", path);
+        return;
+    }
+
+    fprintf(
+        file,
+        "%d,%.6f,%.6f,%.2f,%.2f,%.2f,%d,%d\n",
+        packet->packet_id,
+        packet->latitude,
+        packet->longitude,
+        packet->altitude,
+        packet->velocity,
+        packet->battery,
+        packet->signal_strength,
+        calculate_risk_score(packet)
+    );
+
+    fclose(file);
+}

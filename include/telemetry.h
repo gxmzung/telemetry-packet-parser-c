@@ -1,6 +1,7 @@
 #ifndef TELEMETRY_H
 #define TELEMETRY_H
 
+#include <stdio.h>
 #include <stddef.h>
 
 #define MAX_LINE_LENGTH 256
@@ -52,5 +53,7 @@ void write_diagnostic_report(const char *path, const TelemetrySummary *summary);
 
 int read_binary_packet(FILE *file, TelemetryPacket *packet);
 void convert_binary_to_telemetry(const BinaryTelemetryPacket *binary, TelemetryPacket *packet);
+
+void append_warning_event(const char *path, const TelemetryPacket *packet);
 
 #endif
