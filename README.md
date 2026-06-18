@@ -132,3 +132,35 @@ logs/sequence_anomalies.csv
 실시간 관제 시스템에서는 데이터 값 자체뿐만 아니라, 데이터가 올바른 순서로 도착했는지도 중요합니다.
 
 패킷 손실, 지연, 순서 뒤바뀜은 드론·센서·위성 데이터 처리에서 운영자가 확인해야 하는 중요한 이상 징후입니다.
+
+## v0.9 Update
+
+이번 버전에서는 UDP 수신 세션 요약을 JSON 파일로 저장하는 기능을 추가했습니다.
+
+### Added
+
+- UDP session JSON report export
+- Machine-readable mission summary
+- Future dashboard/API bridge format
+
+### JSON Report Path
+
+logs/udp_session_report.json
+
+### JSON Report Fields
+
+- total_packets
+- warning_packets
+- normal_packets
+- average_altitude
+- average_velocity
+- average_battery
+- max_altitude
+- max_velocity
+- min_battery
+
+### Why JSON export matters
+
+TXT와 CSV는 사람이 확인하기 좋지만, JSON은 웹 대시보드나 API 서버가 읽기 좋습니다.
+
+이 업데이트는 C 기반 텔레메트리 수신기가 향후 FastAPI, 웹 대시보드, 관제 UI와 연결될 수 있도록 machine-readable report를 생성하는 단계입니다.

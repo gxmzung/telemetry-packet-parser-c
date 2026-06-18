@@ -11,6 +11,7 @@ udp_sender_anomaly
 data/*.bin
 logs/*.txt
 logs/*.csv
+logs/*.json
 
 # macOS
 .DS_Store

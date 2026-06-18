@@ -308,3 +308,32 @@ void append_warning_event(const char *path, const TelemetryPacket *packet) {
 
     fclose(file);
 }
+
+void write_summary_json_report(const char *path, const TelemetrySummary *summary) {
+    if (path == NULL || summary == NULL) {
+        return;
+    }
+
+    FILE *file = fopen(path, "w");
+
+    if (file == NULL) {
+        fprintf(stderr, "Warning: failed to write JSON summary report: %s\n", path);
+        return;
+    }
+
+    fprintf(file, "{\n");
+    fprintf(file, "  \"project\": \"telemetry-packet-parser-c\",\n");
+    fprintf(file, "  \"report_type\": \"udp_session_summary\",\n");
+    fprintf(file, "  \"total_packets\": %d,\n", summary->total_count);
+    fprintf(file, "  \"warning_packets\": %d,\n", summary->warning_count);
+    fprintf(file, "  \"normal_packets\": %d,\n", summary->total_count - summary->warning_count);
+    fprintf(file, "  \"average_altitude\": %.2f,\n", summary->average_altitude);
+    fprintf(file, "  \"average_velocity\": %.2f,\n", summary->average_velocity);
+    fprintf(file, "  \"average_battery\": %.2f,\n", summary->average_battery);
+    fprintf(file, "  \"max_altitude\": %.2f,\n", summary->max_altitude);
+    fprintf(file, "  \"max_velocity\": %.2f,\n", summary->max_velocity);
+    fprintf(file, "  \"min_battery\": %.2f\n", summary->min_battery);
+    fprintf(file, "}\n");
+
+    fclose(file);
+}

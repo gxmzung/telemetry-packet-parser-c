@@ -51,6 +51,7 @@ void update_summary(TelemetrySummary *summary, const TelemetryPacket *packet);
 void finalize_summary(TelemetrySummary *summary);
 void print_summary(const TelemetrySummary *summary);
 void write_diagnostic_report(const char *path, const TelemetrySummary *summary);
+void write_summary_json_report(const char *path, const TelemetrySummary *summary);
 
 int read_binary_packet(FILE *file, TelemetryPacket *packet);
 void convert_binary_to_telemetry(const BinaryTelemetryPacket *binary, TelemetryPacket *packet);

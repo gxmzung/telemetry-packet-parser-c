@@ -71,3 +71,26 @@ Binary Packet
 → Web Dashboard
 
 장기적으로는 ROS2/PX4 텔레메트리 브릿지, 실시간 스트리밍, 대시보드 연동까지 확장할 수 있습니다.
+
+## v0.9 JSON Report Export
+
+v0.9부터는 UDP receiver가 종료될 때 세션 요약을 TXT뿐만 아니라 JSON 파일로도 저장합니다.
+
+Data Flow:
+
+UDP Packet
+→ Telemetry Parser
+→ Risk Score
+→ Warning Event Logging
+→ Sequence Anomaly Detection
+→ Session Summary
+→ TXT Report
+→ JSON Report
+
+JSON Report Path:
+
+logs/udp_session_report.json
+
+Purpose:
+
+JSON 리포트는 향후 FastAPI 서버, 웹 대시보드, 관제 UI와 연결하기 위한 machine-readable output입니다.

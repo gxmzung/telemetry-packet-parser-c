@@ -12,6 +12,7 @@
 #define WARNING_LOG_PATH "logs/warning_events.csv"
 #define SEQUENCE_LOG_PATH "logs/sequence_anomalies.csv"
 #define SESSION_REPORT_PATH "logs/udp_session_report.txt"
+#define SESSION_JSON_REPORT_PATH "logs/udp_session_report.json"
 
 static volatile sig_atomic_t running = 1;
 static TelemetrySummary session_summary;
@@ -65,12 +66,14 @@ static void check_packet_sequence(const TelemetryPacket *packet) {
 
     if (last_packet_id == 0) {
         last_packet_id = packet->packet_id;
+        printf("  Sequence : START\n");
         return;
     }
 
     int expected_id = last_packet_id + 1;
 
     if (packet->packet_id == expected_id) {
+        printf("  Sequence : OK\n");
         last_packet_id = packet->packet_id;
         return;
     }
@@ -89,11 +92,14 @@ static void check_packet_sequence(const TelemetryPacket *packet) {
 static void write_session_report(void) {
     finalize_summary(&session_summary);
     print_summary(&session_summary);
-    write_diagnostic_report(SESSION_REPORT_PATH, &session_summary);
 
-    printf("\nUDP session report saved to : %s\n", SESSION_REPORT_PATH);
-    printf("Warning event log saved to  : %s\n", WARNING_LOG_PATH);
-    printf("Sequence anomaly log saved to: %s\n", SEQUENCE_LOG_PATH);
+    write_diagnostic_report(SESSION_REPORT_PATH, &session_summary);
+    write_summary_json_report(SESSION_JSON_REPORT_PATH, &session_summary);
+
+    printf("\nUDP session TXT report saved to : %s\n", SESSION_REPORT_PATH);
+    printf("UDP session JSON report saved to: %s\n", SESSION_JSON_REPORT_PATH);
+    printf("Warning event log saved to      : %s\n", WARNING_LOG_PATH);
+    printf("Sequence anomaly log saved to   : %s\n", SEQUENCE_LOG_PATH);
 }
 
 int main(void) {
@@ -135,6 +141,7 @@ int main(void) {
     printf(" Listening on port %d...\n", UDP_PORT);
     printf(" Warning log : %s\n", WARNING_LOG_PATH);
     printf(" Sequence log: %s\n", SEQUENCE_LOG_PATH);
+    printf(" JSON report : %s\n", SESSION_JSON_REPORT_PATH);
     printf(" Press Ctrl+C to stop and print summary.\n\n");
 
     while (running) {
