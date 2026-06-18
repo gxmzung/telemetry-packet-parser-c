@@ -72,3 +72,47 @@ Socket communication
 Log file export
 Dashboard API integration
 ROS2/PX4 telemetry bridge
+
+## v0.3 Update
+
+이번 버전에서는 CSV뿐만 아니라 바이너리 텔레메트리 패킷 파일을 읽는 기능을 추가했습니다.
+
+### Added
+
+- Binary telemetry packet structure
+- Binary sample packet generator
+- Magic number validation
+- CSV/Binary mode auto detection
+- Binary packet parsing
+
+### Generate Binary Sample
+
+```bash
+make generate-bin
+Run Binary Parser
+make run-bin
+
+또는 직접 실행:
+
+./telemetry_parser data/sample_packets.bin
+Binary Packet Format
+typedef struct {
+    unsigned int magic;
+    int packet_id;
+    double latitude;
+    double longitude;
+    double altitude;
+    double velocity;
+    double battery;
+    int signal_strength;
+} BinaryTelemetryPacket;
+Magic Number
+0x54504B54
+
+매직 넘버는 바이너리 패킷이 올바른 텔레메트리 패킷인지 확인하기 위한 값입니다.
+
+Why Binary Parsing Matters
+
+CSV는 사람이 읽기 쉽지만, 실제 센서·드론·위성 시스템에서는 바이너리 패킷 형태로 데이터가 전달되는 경우가 많습니다.
+
+이 업데이트는 텍스트 기반 데이터 처리에서 한 단계 더 나아가, 저수준 데이터 구조와 패킷 검증 흐름을 C 언어로 직접 구현해보기 위한 단계입니다.

@@ -21,6 +21,48 @@ int parse_telemetry_line(const char *line, TelemetryPacket *packet) {
     return parsed == 7;
 }
 
+void convert_binary_to_telemetry(const BinaryTelemetryPacket *binary, TelemetryPacket *packet) {
+    if (binary == NULL || packet == NULL) {
+        return;
+    }
+
+    packet->packet_id = binary->packet_id;
+    packet->latitude = binary->latitude;
+    packet->longitude = binary->longitude;
+    packet->altitude = binary->altitude;
+    packet->velocity = binary->velocity;
+    packet->battery = binary->battery;
+    packet->signal_strength = binary->signal_strength;
+}
+
+int read_binary_packet(FILE *file, TelemetryPacket *packet) {
+    if (file == NULL || packet == NULL) {
+        return 0;
+    }
+
+    BinaryTelemetryPacket binary_packet;
+
+    size_t read_count = fread(
+        &binary_packet,
+        sizeof(BinaryTelemetryPacket),
+        1,
+        file
+    );
+
+    if (read_count != 1) {
+        return 0;
+    }
+
+    if (binary_packet.magic != TELEMETRY_MAGIC) {
+        fprintf(stderr, "Invalid binary packet magic: 0x%X\n", binary_packet.magic);
+        return 0;
+    }
+
+    convert_binary_to_telemetry(&binary_packet, packet);
+
+    return 1;
+}
+
 void print_packet(const TelemetryPacket *packet) {
     if (packet == NULL) {
         return;
