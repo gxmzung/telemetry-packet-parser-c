@@ -1,0 +1,41 @@
+name: Legacy repository compatibility
+on:
+  push:
+    branches: [main, "feat/**"]
+  pull_request:
+    branches: [main]
+jobs:
+  original-repos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout pinned legacy repositories
+        shell: bash
+        run: |
+          git clone -q https://github.com/gxmzung/embedded-telemetry-lab-c.git /tmp/embedded-telemetry-lab-c
+          git -C /tmp/embedded-telemetry-lab-c checkout -q 1e6a8b2aaa8a6659b48c4665b4ca9b1c6126b3d7
+          git clone -q https://github.com/gxmzung/binary-packet-inspector-c.git /tmp/binary-packet-inspector-c
+          git -C /tmp/binary-packet-inspector-c checkout -q 7d8a0a64f1bca8939c99bc1fa19e760128a6f1bf
+      - name: Build and run original embedded parser / CRC / anomaly tests
+        run: |
+          cc -std=c11 -Wall -Wextra -Wpedantic -Werror -I/tmp/embedded-telemetry-lab-c/include \
+            tests/test_legacy_embedded.c \
+            /tmp/embedded-telemetry-lab-c/src/packet_parser.c \
+            /tmp/embedded-telemetry-lab-c/src/anomaly_detector.c \
+            /tmp/embedded-telemetry-lab-c/src/crc16.c -o /tmp/test_legacy_embedded
+          /tmp/test_legacy_embedded
+      - name: Build and run original binary inspector tests
+        run: |
+          cc -std=c11 -Wall -Wextra -Wpedantic -Werror -I/tmp/binary-packet-inspector-c/include \
+            tests/test_legacy_binary.c \
+            /tmp/binary-packet-inspector-c/src/packet_reader.c \
+            /tmp/binary-packet-inspector-c/src/packet_validator.c \
+            /tmp/binary-packet-inspector-c/src/packet_classifier.c \
+            /tmp/binary-packet-inspector-c/src/crc16.c \
+            /tmp/binary-packet-inspector-c/src/hex_utils.c -o /tmp/test_legacy_binary
+          /tmp/test_legacy_binary
+      - name: Compare source legacy CRC behavior against new wire CRC
+        run: |
+          cc -std=c11 -Wall -Wextra -Wpedantic -Werror -Iinclude \
+            tests/test_wire_legacy_delta.c src/wire_protocol.c -o /tmp/test_wire_legacy_delta
+          /tmp/test_wire_legacy_delta
