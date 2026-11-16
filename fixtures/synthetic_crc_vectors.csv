@@ -1,0 +1,3 @@
+capture_id,source,payload_hex,crc_hex
+synthetic-modbus-check,synthetic,313233343536373839,4B37
+synthetic-zero,synthetic,,FFFF
