@@ -24,7 +24,9 @@ jobs:
             /tmp/embedded-telemetry-lab-c/src/anomaly_detector.c \
             /tmp/embedded-telemetry-lab-c/src/crc16.c -o /tmp/test_legacy_embedded
           /tmp/test_legacy_embedded
-      # Pinned legacy packet_reader.c uses %x with int*, a format mismatch.\n      # Preserve the original source; allow only this warning for baseline compatibility.\n      - name: Build and run original binary inspector tests (known format warning)
+      # Pinned legacy packet_reader.c uses %x with int*, a format mismatch.
+      # Preserve the original source; allow only this warning for baseline compatibility.
+      - name: Build and run original binary inspector tests (known format warning)
         run: |
           cc -std=c11 -Wall -Wextra -Wpedantic -Werror -Wno-error=format -I/tmp/binary-packet-inspector-c/include \
             tests/test_legacy_binary.c \
