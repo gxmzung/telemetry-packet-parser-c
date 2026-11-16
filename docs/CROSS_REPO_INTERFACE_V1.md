@@ -3,7 +3,7 @@
 ## 연결하는 연구 저장소
 
 - `gxmzung/telemetry-packet-parser-c` (본 저장소, 독립 패킷 파서)
-- `gxmzung/binary-packet-inspector-c` (CRC 구현 수정 PR #1, 고정 커밋 `0fd9c1af307955349dbcc0ee0aff41645a2ce0b8`)
+- `gxmzung/binary-packet-inspector-c` (CRC 구현 수정 PR #1, 고정 커밋 `e533184d5b52355e763fe6ebfff4a349e0ac65a6`)
 - `gxmzung/embedded-telemetry-lab-c` (원본 CRC-16/MODBUS 문자열 처리 회귀검증만 유지)
 
 ## v1 공통 불변조건
@@ -26,3 +26,10 @@
 GitHub Actions `Cross-repository CRC contract`는 `binary-packet-inspector-c`의 지정된 SHA를 checkout하여 **양쪽 저장소의 실제 C 소스**를 링크하고 공통 바이트 CRC를 검증한다. 출처 변경 시 SHA를 갱신하고 계약 회귀검증을 다시 진행해야 한다.
 
 `wire_protocol.c`의 독립 와이어 프레임은 `binary-packet-inspector-c`의 기본 `validate_packet_crc`가 아닌, **선택 API `validate_packet_crc_decoded`**에만 맞는다.
+
+## 2026-11-16 범위 확장 검증
+
+- BinaryPacket.payload 저장 공간을 NUL 종료 HEX 256자리 + 1자리로 확대하고, 빈 페이로드 및 128바이트를 처리하도록 상대 PR을 갱신했다.
+- 교차 저장소 테스트는 **실제 두 파서 및 CRC 구현을 함께 링크**해 0·1·63·64·127·128바이트를 검사한다.
+- 두 파서의 바이트 디코딩 CRC-16/MODBUS 모드에서만 0~128바이트 호환성을 주장할 수 있다. 레거시 기본 CRC 함수는 여전히 별도이다.
+- 종단 처리·실제 하드웨어 프로토콜 및 외부 패킷의 소유·권한은 별도 검증이 필요하다.
