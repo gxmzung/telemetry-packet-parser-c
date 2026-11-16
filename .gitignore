@@ -10,3 +10,8 @@ logs/*.txt
 logs/*.csv
 logs/*.json
 .DS_Store
+
+# Local device evidence (never commit raw captures)
+captures/
+evidence-private/
+protocol-evidence*.json

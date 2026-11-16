@@ -1,0 +1,40 @@
+name: Cross-repository CRC contract
+
+on:
+  push:
+    branches: [main, "feat/**"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  two-repo-interoperability:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch pinned binary inspector feature branch commit
+        run: |
+          git clone -q https://github.com/gxmzung/binary-packet-inspector-c.git /tmp/binary-inspector
+          git -C /tmp/binary-inspector checkout -q e533184d5b52355e763fe6ebfff4a349e0ac65a6
+      - name: Compile both repositories under strict C11
+        run: |
+          cc -std=c11 -Wall -Wextra -Wpedantic -Werror \
+            -Iinclude -I/tmp/binary-inspector/include \
+            tests/test_cross_repo_crc_contract.c src/wire_protocol.c \
+            /tmp/binary-inspector/src/crc16.c \
+            /tmp/binary-inspector/src/packet_reader.c \
+            /tmp/binary-inspector/src/hex_utils.c \
+            /tmp/binary-inspector/src/packet_validator.c \
+            -o /tmp/cross_repo_contract
+      - name: Validate shared byte-decoded CRC contract
+        run: /tmp/cross_repo_contract
+      - name: Build 10k-case deterministic cross-repo stress test
+        run: |
+          cc -std=c11 -Wall -Wextra -Wpedantic -Werror -fsanitize=undefined -fno-omit-frame-pointer \
+            -Iinclude -I/tmp/binary-inspector/include \
+            tests/test_cross_repo_stress.c src/wire_protocol.c \
+            /tmp/binary-inspector/src/crc16.c \
+            /tmp/binary-inspector/src/packet_reader.c \
+            /tmp/binary-inspector/src/hex_utils.c \
+            /tmp/binary-inspector/src/packet_validator.c \
+            -o /tmp/cross_repo_stress
+          /tmp/cross_repo_stress
