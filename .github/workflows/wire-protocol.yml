@@ -1,0 +1,17 @@
+name: Wire protocol C validation
+on:
+  push:
+    branches: [main, "feat/**"]
+  pull_request:
+    branches: [main]
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile strict C11 protocol tests
+        run: cc -std=c11 -Wall -Wextra -Wpedantic -Werror -fsanitize=address,undefined -fno-omit-frame-pointer -Iinclude src/wire_protocol.c tests/test_wire_protocol.c -o /tmp/test_wire_protocol
+      - name: Execute protocol assertions
+        run: /tmp/test_wire_protocol
+      - name: Build legacy binaries without changes
+        run: make all writer udp-receiver udp-sender udp-sender-anomaly
