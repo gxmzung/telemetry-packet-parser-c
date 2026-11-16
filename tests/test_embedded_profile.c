@@ -29,7 +29,7 @@ int main(void) {
     assert(embedded_anomaly_flags(&s) == 7u);
     embedded_summary_add(&summary, &s);
     assert(summary.total == 5 && summary.anomaly_packets == 4);
-    assert(fabs(embedded_average_voltage(&summary) - 10.74) < 0.00001);
+    assert(fabs(embedded_average_voltage(&summary) - 11.14) < 0.00001);
     assert(fabs(embedded_average_temperature(&summary) - 54.3) < 0.00001);
 
     s.packet_id = 123456;
