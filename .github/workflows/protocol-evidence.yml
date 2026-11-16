@@ -1,0 +1,17 @@
+name: Protocol evidence offline tests
+on:
+  push:
+    branches: [main, "feat/**"]
+  pull_request:
+    branches: [main]
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run offline evidence unit tests
+        run: python3 -m unittest discover -s tests -p 'test_protocol_evidence.py' -v
+      - name: Verify synthetic fixture and evidence status
+        run: |
+          python3 tools/protocol_evidence.py --input fixtures/synthetic_crc_vectors.csv --mode decoded_payload --output /tmp/protocol-evidence.json
+          python3 -c 'import json; r=json.load(open("/tmp/protocol-evidence.json")); assert r["status"] == "SYNTHETIC_CONTRACT_MATCH"; assert r["device_compatibility_verified"] is False'
