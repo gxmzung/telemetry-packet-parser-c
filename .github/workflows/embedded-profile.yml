@@ -1,0 +1,17 @@
+name: Embedded profile consolidation
+on:
+  push:
+    branches: [main, "feat/**"]
+  pull_request:
+    branches: [main]
+jobs:
+  embedded-profile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile and run embedded research profile
+        run: |
+          cc -std=c11 -Wall -Wextra -Wpedantic -Werror -fsanitize=undefined -Iinclude src/embedded_profile.c tests/test_embedded_profile.c -lm -o /tmp/test_embedded_profile
+          /tmp/test_embedded_profile
+      - name: Build baseline telemetry executable
+        run: make all
