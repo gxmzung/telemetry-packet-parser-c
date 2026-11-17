@@ -1,0 +1,13 @@
+name: UART diagnostic original preservation
+on:
+  push:
+    branches: [main, "chore/**"]
+  pull_request:
+    branches: [main]
+jobs:
+  uart-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify all original 12 files and independent UART CLI
+        run: python3 -m unittest discover -s tests -p 'test_uart_original_preservation.py' -v
