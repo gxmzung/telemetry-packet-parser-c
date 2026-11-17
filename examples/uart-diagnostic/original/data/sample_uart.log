@@ -1,0 +1,10 @@
+[INFO] BOOT_OK device=EDGE-01
+[SENSOR] voltage=12.1 temperature=36.4 signal=88
+[SENSOR] voltage=11.8 temperature=38.1 signal=79
+[WARN] LOW_SIGNAL signal=31
+[SENSOR] voltage=12.0 temperature=39.2 signal=30
+[INFO] GPS_LOCK satellites=12
+[SENSOR] voltage=9.9 temperature=41.0 signal=66
+[ERROR] SENSOR_TIMEOUT channel=imu
+[SENSOR] voltage=12.3 temperature=78.5 signal=72
+[INFO] SESSION_END packets=9
