@@ -1,0 +1,12 @@
+0600c34d259bc723da7e78b980e4032f5c567225  Makefile
+2d477b20ff072b3d97f7de53f6a56445064b151d  README.md
+b9a6f9aab4074a696ad46b4ff92d0593ff787e71  data/sample_uart.log
+50fb20bd5020085e52944544058e148a72758ce7  docs/log_format.md
+f67e14838456779a22c96d6fd4bc1cbc189b50f4  docs/roadmap.md
+c44fa2730a706514c30ec3b62e764bc31ee6c9b9  include/device_report.h
+7e51622f0b76370b0b094516864bacdfa5fbecc8  include/diagnostic_engine.h
+23422dc8af279825e64d268d53abf79f3d02e9b2  include/uart_log_parser.h
+4b197879df95ad3de3e9bb5d40d76a274d8eee61  src/device_report.c
+6012629a8dd0bbe9b71df6d32761dabc990bf470  src/diagnostic_engine.c
+99167b042e7bd5c95a3f4185d767f5ad45bc911a  src/main.c
+d733c69c57c11d60c3ae5a89642aefa1f98cea69  src/uart_log_parser.c
